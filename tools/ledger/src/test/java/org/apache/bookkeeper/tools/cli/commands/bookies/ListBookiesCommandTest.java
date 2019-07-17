@@ -29,6 +29,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import com.google.common.primitives.UnsignedBytes;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
@@ -68,6 +69,7 @@ public class ListBookiesCommandTest extends DiscoveryCommandTestBase {
 
     private Set<BookieSocketAddress> writableBookies;
     private Set<BookieSocketAddress> readonlyBookies;
+    private Set<BookieSocketAddress> allBookies;
 
     @Before
     public void setup() throws Exception {
@@ -75,11 +77,16 @@ public class ListBookiesCommandTest extends DiscoveryCommandTestBase {
 
         writableBookies = createBookies(3181, 10);
         readonlyBookies = createBookies(4181, 10);
-
+        allBookies = new TreeSet<>(new BookieAddressComparator());
+        allBookies.addAll(writableBookies);
+        allBookies.addAll(readonlyBookies);
+ListBookieCommand@74
         when(regClient.getWritableBookies())
             .thenReturn(value(new Versioned<>(writableBookies, new LongVersion(0L))));
         when(regClient.getReadOnlyBookies())
             .thenReturn(value(new Versioned<>(readonlyBookies, new LongVersion(0L))));
+        when(regClient.getAllBookies())
+            .thenReturn(value(new Versioned<>(allBookies, new LongVersion(0L))));
 
         PowerMockito.mockStatic(CommandHelpers.class, CALLS_REAL_METHODS);
     }
